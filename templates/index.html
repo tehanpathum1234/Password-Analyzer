@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password Analyzer — Secure Vault</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#00ffe7;--c2:#7b2fff;--c3:#ff2d6a;--c4:#ffb700;
+  --bg:#04060f;--bg2:#080d1a;--bg3:#0c1428;
+  --panel:rgba(0,255,231,0.04);--panelborder:rgba(0,255,231,0.15);
+  --text:#c8e8ff;--muted:#5577aa;
+  --mono:'Share Tech Mono',monospace;--body:'Exo 2',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;overflow-x:hidden}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,231,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,231,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.scan-line{position:fixed;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--c1),transparent);animation:scan 4s linear infinite;opacity:0.4;pointer-events:none;z-index:1}
+@keyframes scan{0%{top:-2px}100%{top:100vh}}
+.container{max-width:680px;margin:0 auto;padding:2rem 1rem;position:relative;z-index:2}
+.header{text-align:center;margin-bottom:2.5rem}
+.header-badge{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--c1);border:1px solid var(--c1);padding:4px 12px;letter-spacing:3px;margin-bottom:1rem;position:relative}
+.header-badge::before,.header-badge::after{content:'';position:absolute;top:50%;width:30px;height:1px;background:var(--c1)}
+.header-badge::before{right:100%;margin-right:6px}
+.header-badge::after{left:100%;margin-left:6px}
+h1{font-size:2.4rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;text-shadow:0 0 40px rgba(0,255,231,0.4),0 0 80px rgba(0,255,231,0.15)}
+.subtitle{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:3px;margin-top:8px}
+.panel{background:var(--panel);border:1px solid var(--panelborder);border-radius:4px;padding:1.5rem;margin-bottom:1rem;position:relative;overflow:hidden}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c1),transparent)}
+.corner{position:absolute;width:12px;height:12px;border-color:var(--c1);border-style:solid;opacity:0.5}
+.corner.tl{top:0;left:0;border-width:2px 0 0 2px}
+.corner.tr{top:0;right:0;border-width:2px 2px 0 0}
+.corner.bl{bottom:0;left:0;border-width:0 0 2px 2px}
+.corner.br{bottom:0;right:0;border-width:0 2px 2px 0}
+.panel-label{font-family:var(--mono);font-size:10px;color:var(--c1);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.panel-label::after{content:'';flex:1;height:1px;background:rgba(0,255,231,0.2)}
+.field-wrap{position:relative;margin-bottom:1rem}
+.field-wrap label{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;text-transform:uppercase}
+.field-wrap input{width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(0,255,231,0.2);border-radius:3px;padding:14px 48px 14px 16px;color:#fff;font-family:var(--body);font-size:15px;outline:none;transition:all 0.3s;letter-spacing:0.5px}
+.field-wrap input:focus{border-color:var(--c1);box-shadow:0 0 0 1px rgba(0,255,231,0.15),inset 0 0 20px rgba(0,255,231,0.03)}
+.field-wrap input::placeholder{color:var(--muted)}
+.eye-btn{position:absolute;right:12px;bottom:14px;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;display:flex;align-items:center;transition:color 0.2s}
+.eye-btn:hover{color:var(--c1)}
+.submit-btn{width:100%;background:transparent;border:1px solid var(--c1);color:var(--c1);padding:14px;font-family:var(--body);font-size:13px;font-weight:600;letter-spacing:4px;text-transform:uppercase;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;margin-top:0.5rem;border-radius:3px}
+.submit-btn::before{content:'';position:absolute;inset:0;background:var(--c1);transform:translateX(-100%);transition:transform 0.3s;z-index:0}
+.submit-btn:hover::before{transform:translateX(0)}
+.submit-btn:hover{color:#000}
+.submit-btn span{position:relative;z-index:1}
+.meter-wrap{margin:1.5rem 0 1rem}
+.meter-bar{height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden}
+.meter-fill{height:100%;width:0%;transition:width 0.6s cubic-bezier(.22,1,.36,1),background 0.4s;border-radius:2px}
+.meter-ticks{display:flex;gap:4px;margin-top:8px}
+.tick{flex:1;height:3px;border-radius:1px;background:rgba(255,255,255,0.06);transition:all 0.4s}
+.score-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.score-num{font-family:var(--mono);font-size:3rem;font-weight:600;color:#fff;line-height:1}
+.score-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;padding:5px 12px;border-radius:2px;margin-top:6px}
+.criteria-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:1rem}
+.crit{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:3px;border:1px solid transparent;font-size:11px;font-family:var(--mono);transition:all 0.3s;letter-spacing:0.5px}
+.crit.pass{background:rgba(0,255,231,0.05);border-color:rgba(0,255,231,0.2);color:var(--c1)}
+.crit.fail{background:rgba(255,45,106,0.05);border-color:rgba(255,45,106,0.12);color:rgba(255,45,106,0.55)}
+.crit-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.crit.pass .crit-dot{background:var(--c1);box-shadow:0 0 8px var(--c1)}
+.crit.fail .crit-dot{background:var(--c3);opacity:0.35}
+.entropy-panel{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.stat-box{background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.06);border-radius:3px;padding:1.2rem;text-align:center}
+.stat-val{font-family:var(--mono);font-size:1.8rem;font-weight:600;color:#fff;line-height:1}
+.stat-unit{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:4px}
+.stat-lbl{font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:8px}
+.entropy-class-row{margin-top:1rem;padding:11px 16px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:3px;display:flex;justify-content:space-between;align-items:center}
+.entropy-class-lbl{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px}
+.entropy-class-val{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:1px}
+.warning-box{background:rgba(255,183,0,0.06);border:1px solid rgba(255,183,0,0.3);border-radius:3px;padding:11px 14px;font-family:var(--mono);font-size:11px;color:#ffb700;letter-spacing:1px;display:flex;align-items:center;gap:10px;margin-top:0.8rem}
+.valid-banner{background:rgba(0,255,231,0.05);border:1px solid rgba(0,255,231,0.3);border-radius:3px;padding:13px 16px;font-family:var(--mono);font-size:11px;color:var(--c1);letter-spacing:2px;text-align:center;text-transform:uppercase;animation:flicker 2s ease-in-out;margin-bottom:1rem}
+.invalid-banner{background:rgba(255,45,106,0.05);border:1px solid rgba(255,45,106,0.3);border-radius:3px;padding:13px 16px;font-family:var(--mono);font-size:11px;color:var(--c3);letter-spacing:2px;text-align:center;text-transform:uppercase;margin-bottom:1rem}
+@keyframes flicker{0%,100%{opacity:1}40%{opacity:0.7}42%{opacity:1}44%{opacity:0.8}46%{opacity:1}}
+.result-section{display:none}
+.result-section.show{display:block}
+.footer{text-align:center;margin-top:2rem;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;padding-bottom:2rem}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="scan-line"></div>
+
+<div class="container">
+  <div class="header">
+    <div class="header-badge">SECURE VAULT v2.0</div>
+    <h1>Password<br>Analyzer</h1>
+    <p class="subtitle">// ENTROPY &amp; STRENGTH EVALUATION SYSTEM //</p>
+  </div>
+
+  <!-- Input Panel -->
+  <div class="panel">
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+    <div class="panel-label">INPUT CREDENTIALS</div>
+
+    <div class="field-wrap">
+      <label>Identifier (Name)</label>
+      <input type="text" id="nameInput" placeholder="Enter your name..." autocomplete="off">
+    </div>
+
+    <div class="field-wrap">
+      <label>Password String</label>
+      <input type="password" id="passInput" placeholder="Enter password..." autocomplete="off">
+      <button class="eye-btn" onclick="toggleVis()" aria-label="Toggle password visibility">
+        <i class="ti ti-eye" style="font-size:18px" id="eyeIcon"></i>
+      </button>
+    </div>
+
+    <button class="submit-btn" onclick="analyze()">
+      <span>▶ &nbsp; ANALYZE PASSWORD</span>
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div class="result-section" id="resultSection">
+
+    <div id="validBanner"></div>
+
+    <!-- Score Panel -->
+    <div class="panel">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel-label">STRENGTH ANALYSIS</div>
+
+      <div class="score-row">
+        <div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px">SCORE</div>
+          <div class="score-num" id="scoreNum">0</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px">OUT OF 5</div>
+        </div>
+        <div class="score-label" id="scoreLabel">—</div>
+      </div>
+
+      <div class="meter-wrap">
+        <div class="meter-bar"><div class="meter-fill" id="meterFill"></div></div>
+        <div class="meter-ticks" id="ticks">
+          <div class="tick"></div><div class="tick"></div>
+          <div class="tick"></div><div class="tick"></div><div class="tick"></div>
+        </div>
+      </div>
+
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:8px">CRITERIA CHECK</div>
+      <div class="criteria-grid" id="criteriaGrid"></div>
+    </div>
+
+    <!-- Entropy Panel -->
+    <div class="panel">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel-label">ENTROPY METRICS</div>
+
+      <div class="entropy-panel">
+        <div class="stat-box">
+          <div class="stat-val" id="entropyVal">0.00</div>
+          <div class="stat-unit">BITS</div>
+          <div class="stat-lbl">Entropy Score</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="lengthVal">0</div>
+          <div class="stat-unit">CHARS</div>
+          <div class="stat-lbl">Password Length</div>
+        </div>
+      </div>
+
+      <div class="entropy-class-row">
+        <span class="entropy-class-lbl">ENTROPY CLASS</span>
+        <span class="entropy-class-val" id="entropyLabel">—</span>
+      </div>
+
+      <div id="commonWarn" style="display:none" class="warning-box">
+        <i class="ti ti-alert-triangle" style="font-size:18px;flex-shrink:0"></i>
+        PASSWORD FOUND IN COMMON LIST — CHANGE IMMEDIATELY
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">[ SYSTEM READY ] — ALL ANALYSIS PERFORMED LOCALLY</div>
+</div>
+
+<script>
+const COMMON = [
+  "123456","password","12345678","qwerty","123456789","12345","1234","111111",
+  "1234567","dragon","123123","baseball","abc123","football","monkey","letmein",
+  "shadow","master","666666","qwerty123","1q2w3e4r","superman","iloveyou","admin",
+  "welcome","login","hello","princess","rockyou","pass","michael","charlie",
+  "donald","qwertyuiop","trustno1","sunshine","12341234","passw0rd","batman",
+  "access","jennifer","hunter","696969","jordan","harley","ranger","cheese",
+  "pass123","abc1234","password1","654321","987654","qazwsx","zxcvbn","asdfgh"
+];
+const SPECIAL = "!@#$%^&*()_+-=[]{};:'\"\\|,.<>/?";
+
+function toggleVis() {
+  const p = document.getElementById('passInput');
+  const ic = document.getElementById('eyeIcon');
+  if (p.type === 'password') { p.type = 'text'; ic.className = 'ti ti-eye-off'; }
+  else { p.type = 'password'; ic.className = 'ti ti-eye'; }
+}
+
+function analyze() {
+  const name = document.getElementById('nameInput').value.trim();
+  const pass = document.getElementById('passInput').value;
+  if (!pass) return;
+
+  let hasUpper=false, hasLower=false, hasDigit=false, hasSpecial=false, charsetSize=0;
+  const lenOk = pass.length >= 6 && pass.length <= 60;
+
+  for (const ch of pass) {
+    if (ch >= 'A' && ch <= 'Z') hasUpper = true;
+    else if (ch >= 'a' && ch <= 'z') hasLower = true;
+    else if (ch >= '0' && ch <= '9') hasDigit = true;
+    else if (SPECIAL.includes(ch)) hasSpecial = true;
+  }
+  if (hasUpper)  charsetSize += 26;
+  if (hasLower)  charsetSize += 26;
+  if (hasDigit)  charsetSize += 10;
+  if (hasSpecial) charsetSize += SPECIAL.length;
+  if (charsetSize === 0) charsetSize = 1;
+
+  const entropy = pass.length * Math.log2(charsetSize);
+  let entropyLabel, entropyColor;
+  if (entropy < 28)       { entropyLabel = 'VERY WEAK';   entropyColor = '#ff2d6a'; }
+  else if (entropy < 36)  { entropyLabel = 'WEAK';        entropyColor = '#ff6b35'; }
+  else if (entropy < 60)  { entropyLabel = 'REASONABLE';  entropyColor = '#ffb700'; }
+  else if (entropy < 128) { entropyLabel = 'STRONG';      entropyColor = '#00ffe7'; }
+  else                    { entropyLabel = 'VERY STRONG'; entropyColor = '#7b2fff'; }
+
+  let score = 0;
+  if (hasUpper)   score++;
+  if (hasLower)   score++;
+  if (hasDigit)   score++;
+  if (hasSpecial) score++;
+  if (lenOk)      score++;
+
+  const isValid  = hasUpper && hasLower && hasDigit && hasSpecial && lenOk;
+  const isCommon = COMMON.includes(pass.toLowerCase());
+
+  let strengthLabel, strengthColor, fillPct;
+  if (score <= 1)      { strengthLabel='WEAK';   strengthColor='#ff2d6a'; fillPct=20; }
+  else if (score <= 3) { strengthLabel='FAIR';   strengthColor='#ffb700'; fillPct=60; }
+  else                 { strengthLabel='STRONG'; strengthColor='#00ffe7'; fillPct=100; }
+
+  document.getElementById('resultSection').classList.add('show');
+
+  const banner = document.getElementById('validBanner');
+  if (isValid) {
+    banner.className = 'valid-banner';
+    banner.textContent = '✓ AUTHENTICATION PARAMETERS VALID' + (name ? ' — ' + name.toUpperCase() : '');
+  } else {
+    banner.className = 'invalid-banner';
+    banner.textContent = '✗ PASSWORD DOES NOT MEET SECURITY REQUIREMENTS';
+  }
+
+  document.getElementById('scoreNum').textContent = score;
+  const sl = document.getElementById('scoreLabel');
+  sl.textContent = strengthLabel;
+  sl.style.cssText = `background:${strengthColor}18;border:1px solid ${strengthColor}44;color:${strengthColor};font-family:var(--mono);font-size:10px;letter-spacing:2px;padding:5px 14px;border-radius:3px`;
+
+  document.getElementById('meterFill').style.cssText = `width:${fillPct}%;background:${strengthColor}`;
+
+  const ticks = document.getElementById('ticks').children;
+  for (let i = 0; i < ticks.length; i++) {
+    ticks[i].style.background = i < score ? strengthColor : 'rgba(255,255,255,0.06)';
+  }
+
+  const criteria = [
+    { label: 'UPPERCASE [A-Z]', ok: hasUpper },
+    { label: 'LOWERCASE [a-z]', ok: hasLower },
+    { label: 'DIGIT [0-9]',     ok: hasDigit },
+    { label: 'SPECIAL CHAR',    ok: hasSpecial },
+    { label: 'LENGTH [6-60]',   ok: lenOk },
+  ];
+  document.getElementById('criteriaGrid').innerHTML = criteria.map(c =>
+    `<div class="crit ${c.ok ? 'pass' : 'fail'}">
+      <div class="crit-dot"></div>${c.label}
+     </div>`
+  ).join('');
+
+  document.getElementById('entropyVal').textContent = entropy.toFixed(2);
+  document.getElementById('lengthVal').textContent   = pass.length;
+  const el = document.getElementById('entropyLabel');
+  el.textContent  = entropyLabel;
+  el.style.color  = entropyColor;
+
+  document.getElementById('commonWarn').style.display = isCommon ? 'flex' : 'none';
+
+  document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+document.getElementById('passInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') analyze();
+});
+</script>
+</body>
+</html>
