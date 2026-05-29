@@ -1,87 +1,96 @@
-# Password Analyzer — Secure Vault
+# 🔐 Password Analyzer — Secure Vault
 
-I built this project to practice Python and web development while doing something actually useful — a tool that tells you whether your password is strong or not, and *why*.
+A password strength checker that tells you whether your password is secure or not, and exactly why. There are two versions — a terminal script and a Flask web app.
 
-There are two versions: a simple command-line script you can run in the terminal, and a proper web app with a UI built using Flask.
+---
+
+## 📁 Project files
+
+```
+├── app.py                                      # Flask web app (backend)
+├── checker_cli.py                              # Terminal version
+├── templates/
+│   └── index.html                              # Web UI frontend
+└── 10-million-password-list-top-1000.txt       # Common passwords list
+```
 
 ---
 
 ## What it does
 
-You type in a password, and the tool will:
-
-- Tell you if it passes the basic security requirements
-- Give it a score out of 5
-- Calculate the entropy (how unpredictable it actually is)
-- Warn you if it's a commonly used password
-- Tell you exactly what's missing if it doesn't pass
+- Checks if your password meets all the security requirements
+- Scores it out of 5 based on what it contains
+- Calculates entropy to measure how hard it would be to brute-force
+- Warns you if your password appears in a common passwords list
+- Tells you exactly what's missing if it doesn't pass
 
 ---
 
-## Files
+## What counts as a valid password?
 
-```
-├── app.py              # The Flask web app
-├── checker_cli.py      # The terminal version
-├── templates/
-│   └── index.html      # The web UI
-└── 10-million-password-list-top-1000.txt  # Common passwords list
-```
+Your password needs to meet all five of these:
 
----
-
-## What makes a password valid?
-
-The tool checks for five things:
-
-- At least one uppercase letter (A–Z)
-- At least one lowercase letter (a–z)
-- At least one number (0–9)
-- At least one special character like `!`, `@`, `#`, `$`, etc.
-- Length between 6 and 60 characters
-
-All five need to pass for the password to be considered valid.
-
----
-
-## How the score works
-
-Each requirement above is worth 1 point, so the max score is 5.
-
-- **1 or below** → Weak
-- **2 to 4** → Fair
-- **5** → Strong
-
----
-
-## What's entropy and why does it matter?
-
-Entropy measures how hard your password is to guess or brute-force. The longer your password and the more variety of characters it uses, the higher the entropy.
-
-The formula used here is:
-
-```
-Entropy = length × log₂(charset size)
-```
-
-| Entropy | What it means |
+| # | Requirement |
 |---|---|
-| Under 28 bits | Very Weak |
-| 28–35 bits | Weak |
-| 36–59 bits | Reasonable |
-| 60–127 bits | Strong |
-| 128+ bits | Very Strong |
+| 1 | At least one uppercase letter (A–Z) |
+| 2 | At least one lowercase letter (a–z) |
+| 3 | At least one digit (0–9) |
+| 4 | At least one special character — `!`, `@`, `#`, `$`, etc. |
+| 5 | Length between 6 and 60 characters |
+
+If any of these are missing, the tool prints exactly which ones you need to fix.
 
 ---
 
-## How to run it
+## Scoring
 
-### You'll need
+Each requirement above is worth 1 point:
+
+| Score | Rating |
+|---|---|
+| 0 – 1 | 🔴 Weak |
+| 2 – 4 | 🟡 Fair |
+| 5 / 5 | 🟢 Strong |
+
+---
+
+## Entropy
+
+Entropy is calculated using:
+
+```
+Entropy = password length × log₂(charset size)
+```
+
+Charset size is built up based on which character types are present:
+
+| Character type | Added to charset |
+|---|---|
+| Uppercase (A–Z) | +26 |
+| Lowercase (a–z) | +26 |
+| Digits (0–9) | +10 |
+| Special characters | +32 |
+
+| Entropy (bits) | Strength |
+|---|---|
+| Under 28 | Very Weak |
+| 28 – 35 | Weak |
+| 36 – 59 | Reasonable |
+| 60 – 127 | Strong |
+| 128 and above | Very Strong |
+
+---
+
+## 🚀 How to run it
+
+### What you need
 
 - Python 3
-- Flask → install it with `pip install flask`
-- The common passwords file saved at `10-million-password-list-top-1000.txt`
-  (or update the path in the code to wherever you saved it)
+- Flask — `pip install flask`
+- The common passwords file at:
+  `/home/kali/Downloads/10-million-password-list-top-1000.txt`
+
+  > If your file is saved somewhere else, update the path at the top of `app.py` and `checker_cli.py`.
 
 ---
 
@@ -91,8 +100,9 @@ Entropy = length × log₂(charset size)
 python3 checker_cli.py
 ```
 
-It'll ask for your name and password, then print the result straight away.
+It will ask for your name and password, then print the result.
 
+**Example output:**
 ```
 Enter your name : Pathum
 
@@ -109,6 +119,14 @@ Entropy : 57.00 bits
 Strength : Reasonable
 ```
 
+If the password doesn't pass, it prints what's missing:
+```
+Your password is easy to break :(
+
+- at least one uppercase letter (A-Z)
+- at least one digit (0-9)
+```
+
 ---
 
 ### Web app version
@@ -117,38 +135,36 @@ Strength : Reasonable
 python3 app.py
 ```
 
-Then open your browser and go to `http://127.0.0.1:5000`
+Open your browser and go to `http://127.0.0.1:5000`
 
-> Make sure `index.html` is inside a folder called `templates/` next to `app.py` — Flask won't find it otherwise.
+> The `index.html` file must be inside a folder called `templates/` in the same directory as `app.py`, otherwise Flask won't find it.
 
 ---
 
-## The web UI
+## Web UI
 
-The frontend has a cyberpunk-style design and gives you real-time results after you click Analyze. You'll see:
+The frontend has a dark cyberpunk theme. After you enter your name and password and click **Analyze**, you get:
 
-- A strength meter that fills up based on your score
+- A strength meter bar based on your score
 - A checklist showing which requirements passed or failed
 - Your entropy score and password length
-- A warning if your password is on the common passwords list
-
-You can also press **Enter** instead of clicking the button.
+- A warning if your password is found in the common list
+- You can also press **Enter** instead of clicking the button
 
 ---
 
-## A couple of things to note
+## ⚠️ Things to note
 
-- The common password check in `checker_cli.py` uses a loose match (`in`), which can sometimes flag a password incorrectly if its text appears anywhere inside the file. The web app uses an exact match, which is more accurate. Worth fixing if you continue developing this.
-- The passwords list path is hardcoded in both files — just update the path if yours is saved somewhere different.
+- The common password check in `checker_cli.py` uses a loose `in` match, so it might flag a password incorrectly if it appears as part of a longer string in the file. The web app uses an exact match. Worth fixing.
+- The passwords file path is hardcoded in both scripts — update it if you're running this on a different machine.
 
 ---
 
 ## Built with
 
 - Python 3 + Flask
-- HTML
-- Shannon entropy formula from the `math` module
-- Tabler Icons for the web UI
+- `math.log2()` for entropy calculation
+- HTML, CSS, JavaScript
+- Tabler Icons
 
 ---
-
