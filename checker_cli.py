@@ -1,6 +1,6 @@
 import re
 import math
-with open('/home/kali/Downloads/10-million-password-list-top-1000.txt') as file : 
+with open('10-million-password-list-top-1000.txt') as file : 
   common_password = file.read()
 user_name  = input("Enter your name : ")
 print()
