@@ -80,7 +80,7 @@ Entropy = length × log₂(charset size)
 
 - Python 3
 - Flask → install it with `pip install flask`
-- The common passwords file saved at `/home/kali/Downloads/10-million-password-list-top-1000.txt`
+- The common passwords file saved at `10-million-password-list-top-1000.txt`
   (or update the path in the code to wherever you saved it)
 
 ---
