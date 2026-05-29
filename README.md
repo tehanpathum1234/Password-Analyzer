@@ -164,7 +164,7 @@ The frontend has a dark cyberpunk theme. After you enter your name and password 
 
 - Python 3 + Flask
 - `math.log2()` for entropy calculation
-- HTML, CSS, JavaScript
+- HTML
 - Tabler Icons
 
 ---
