@@ -146,7 +146,7 @@ You can also press **Enter** instead of clicking the button.
 ## Built with
 
 - Python 3 + Flask
-- HTML, CSS, JavaScript
+- HTML
 - Shannon entropy formula from the `math` module
 - Tabler Icons for the web UI
 
