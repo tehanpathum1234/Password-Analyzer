@@ -5,7 +5,7 @@ from flask import Flask, render_template, request
 # Flask - create web app, render_template - loads your HTML file, request - read what user typed in the form
 app = Flask(__name__)
 #create your web application
-with open('/home/kali/Downloads/10-million-password-list-top-1000.txt') as file : 
+with open('10-million-password-list-top-1000.txt') as file : 
   common_password = file.read()
 
 @app.route("/", methods = ["GET", "POST"])
@@ -109,4 +109,4 @@ def index():
   return render_template("index.html", result=result, user_name=user_name)
 
 if __name__ == '__main__' :
-  app.run(debug=True)
+  app.run(host="0.0.0.0", port=5000)
